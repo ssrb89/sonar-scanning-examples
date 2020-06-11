@@ -1,0 +1,27 @@
+pipeline{
+    agent {
+        node {
+            label 'build-agent-01'
+        }
+    }
+    stages {
+        stage('Build & SonarQube Analysis'){
+            steps {
+              withEnv(['PATH+EXTRA=/home/jenkins/.dotnet/tools']) {
+              	withSonarQubeEnv('SonarQube-Test') {
+          	      sh 'pwd'
+          	      sh 'ls -lrt'
+          	      sh 'dotnet sonarscanner begin /k:library'
+                  sh 'dotnet build $WORKSPACE/sonarqube-scanner-msbuild/CSharpProject/SomeConsoleApplication.sln'
+                  sh 'dotnet sonarscanner end'
+              	}
+              }
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+    }
+}
